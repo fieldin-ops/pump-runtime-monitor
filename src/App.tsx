@@ -194,19 +194,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-600">
-        Pump Runtime Monitor · Live data from{' '}
-        <a
-          href="https://flespi.io"
-          className="text-slate-500 underline hover:text-slate-400"
-          target="_blank"
-          rel="noreferrer"
-        >
-          flespi.io
-        </a>
-        {' · '}
-        Noise filter: &gt;3 ignition flips in 60s ignored
-      </footer>
+      <footer className="border-t border-slate-800 py-6" />
     </div>
   )
 }

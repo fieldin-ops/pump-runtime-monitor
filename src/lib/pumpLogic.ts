@@ -188,12 +188,15 @@ export function buildEvents(changes: StateChange[]): PumpEvent[] {
   }))
 }
 
-export function computeStats(segments: TimelineSegment[], events: PumpEvent[]): DayStats {
+export function computeStats(segments: TimelineSegment[], events: PumpEvent[], capAtNow = false): DayStats {
+  const now = Math.floor(Date.now() / 1000)
   let totalRuntime = 0
   let longestRun = 0
 
   for (const seg of segments) {
-    const duration = seg.end - seg.start
+    const effectiveEnd = capAtNow ? Math.min(seg.end, now) : seg.end
+    if (effectiveEnd <= seg.start) continue
+    const duration = effectiveEnd - seg.start
     if (seg.running) {
       totalRuntime += duration
       longestRun = Math.max(longestRun, duration)
@@ -240,11 +243,12 @@ export function processDayMessages(
   const segments = buildSegments(changes, start, end)
   const events = buildEvents(changes)
 
+  const isToday = isTodayInTimezone(date)
   const sorted = [...dayMessages].sort((a, b) => b.timestamp - a.timestamp)
   return {
     segments,
     events,
-    stats: computeStats(segments, events),
+    stats: computeStats(segments, events, isToday),
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: sorted.length > 0 ? sorted[0].timestamp : null,
@@ -272,12 +276,13 @@ export function processTwoDayMessages(
   const daySegments = buildSegments(dayChanges, selectedDayStart, selectedDayEnd)
 
   const dayEvents = buildEvents(dayChanges)
+  const isToday = isTodayInTimezone(date)
   const allSorted = [...windowMessages].sort((a, b) => b.timestamp - a.timestamp)
   return {
     segments: daySegments,
     timelineSegments,
     events: dayEvents,
-    stats: computeStats(daySegments, dayEvents),
+    stats: computeStats(daySegments, dayEvents, isToday),
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: allSorted.length > 0 ? allSorted[0].timestamp : null,
