@@ -121,7 +121,7 @@ export default function App() {
                   : 'bg-slate-500/10 text-slate-400 ring-slate-500/30'
               }`}
             >
-              <Radio className="h-3.5 w-3.5" />
+              <Radio className={`h-3.5 w-3.5 ${currentStatus ? 'animate-pulse' : ''}`} />
               {currentStatus ? 'Pump Running' : 'Pump Stopped'}
             </span>
             {processed?.lastMessageTimestamp && (

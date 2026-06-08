@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from
 
 const AUTH_KEY = 'pump-monitor-auth'
 const PASSWORD_HASH =
-  '4ec6cfef191f6994618aee7210a2d0f8caaec8ea89548feca96d9b7071bed8f0'
+  'eed2bbef2e52630e4cb4171734790f4e23e036bc3e20f76da4d42cbe4c94cccc'
 
 async function sha256(text: string): Promise<string> {
   const data = new TextEncoder().encode(text)
