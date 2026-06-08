@@ -1,5 +1,5 @@
-import { format } from 'date-fns'
 import { Play, Square } from 'lucide-react'
+import { TIMEZONE } from '../lib/constants'
 import type { PumpEvent } from '../lib/pumpLogic'
 
 interface EventListProps {
@@ -33,7 +33,13 @@ export function EventList({ events }: EventListProps) {
               className="border-b border-slate-800/60 transition-colors hover:bg-slate-800/30"
             >
               <td className="px-4 py-2.5 font-mono text-slate-300">
-                {format(new Date(event.timestamp * 1000), 'HH:mm:ss')}
+                {new Date(event.timestamp * 1000).toLocaleTimeString('en-US', {
+                    timeZone: TIMEZONE,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                  })}
               </td>
               <td className="px-4 py-2.5">
                 <span

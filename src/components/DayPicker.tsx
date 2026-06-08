@@ -1,5 +1,6 @@
 import { addDays, format, subDays } from 'date-fns'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import { FIRST_DAY, TIMEZONE } from '../lib/constants'
 
 interface DayPickerProps {
   selectedDate: Date
@@ -7,16 +8,16 @@ interface DayPickerProps {
 }
 
 export function DayPicker({ selectedDate, onChange }: DayPickerProps) {
-  const today = new Date()
-  const isToday =
-    format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })
+  const isToday = format(selectedDate, 'yyyy-MM-dd') === todayStr
 
   return (
     <div className="flex items-center gap-3">
       <button
         type="button"
         onClick={() => onChange(subDays(selectedDate, 1))}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800/50 text-slate-400 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-slate-200"
+        disabled={format(selectedDate, 'yyyy-MM-dd') <= FIRST_DAY}
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800/50 text-slate-400 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Previous day"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -27,7 +28,8 @@ export function DayPicker({ selectedDate, onChange }: DayPickerProps) {
         <input
           type="date"
           value={format(selectedDate, 'yyyy-MM-dd')}
-          max={format(today, 'yyyy-MM-dd')}
+          min={FIRST_DAY}
+          max={todayStr}
           onChange={(e) => {
             if (e.target.value) onChange(new Date(e.target.value + 'T12:00:00'))
           }}

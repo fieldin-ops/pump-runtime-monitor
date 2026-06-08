@@ -1,7 +1,8 @@
-import { MapContainer, Marker, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapPin } from 'lucide-react'
+import { DEVICE_NAME } from '../lib/constants'
 
 const pumpIcon = L.divIcon({
   className: '',
@@ -35,10 +36,14 @@ export function PumpMap({ position }: PumpMapProps) {
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
-        <Marker position={[position.lat, position.lng]} icon={pumpIcon} />
+        <Marker position={[position.lat, position.lng]} icon={pumpIcon}>
+          <Tooltip permanent direction="top" offset={[0, -10]} className="pump-label">
+            {DEVICE_NAME}
+          </Tooltip>
+        </Marker>
       </MapContainer>
       <div className="border-t border-slate-700/50 bg-slate-900/80 px-4 py-2">
         <p className="font-mono text-xs text-slate-400">

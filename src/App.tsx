@@ -1,4 +1,4 @@
-import { format, startOfDay } from 'date-fns'
+import { format } from 'date-fns'
 import {
   AlertTriangle,
   Gauge,
@@ -17,23 +17,27 @@ import {
   DEVICE_IDENT,
   DEVICE_NAME,
   FLESPI_TOKEN,
+  FLESPI_TOKEN_PLACEHOLDER,
+  TIMEZONE,
 } from './lib/constants'
 import { fetchDeviceMessages } from './lib/flespi'
 import {
-  dayBounds,
-  processDayMessages,
-  type ProcessedDay,
+  processTwoDayMessages,
+  twoDayBounds,
+  type ProcessedTwoDay,
 } from './lib/pumpLogic'
 
 export default function App() {
-  const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
-  const [processed, setProcessed] = useState<ProcessedDay | null>(null)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const nowInTz = new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })
+    return new Date(`${nowInTz}T12:00:00`)
+  })
+  const [processed, setProcessed] = useState<ProcessedTwoDay | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [lastFetch, setLastFetch] = useState<Date | null>(null)
 
   const loadData = useCallback(async () => {
-    if (FLESPI_TOKEN === 'YOUR_FLESPI_TOKEN_HERE') {
+    if (FLESPI_TOKEN === FLESPI_TOKEN_PLACEHOLDER) {
       setError(
         'Set your flespi token in src/lib/constants.ts (FLESPI_TOKEN). Create one at https://flespi.io/tokens',
       )
@@ -45,10 +49,9 @@ export default function App() {
     setError(null)
 
     try {
-      const { start, end } = dayBounds(selectedDate)
-      const messages = await fetchDeviceMessages(start, end)
-      setProcessed(processDayMessages(messages, selectedDate))
-      setLastFetch(new Date())
+      const { windowStart, windowEnd } = twoDayBounds(selectedDate)
+      const messages = await fetchDeviceMessages(windowStart, windowEnd)
+      setProcessed(processTwoDayMessages(messages, selectedDate))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
       setProcessed(null)
@@ -59,11 +62,13 @@ export default function App() {
 
   useEffect(() => {
     loadData()
+    const interval = setInterval(loadData, 60_000)
+    return () => clearInterval(interval)
   }, [loadData])
 
-  const { start: dayStart, end: dayEnd } = dayBounds(selectedDate)
-  const currentStatus = processed?.segments.length
-    ? processed.segments[processed.segments.length - 1].running
+  const bounds = twoDayBounds(selectedDate)
+  const currentStatus = processed?.timelineSegments.length
+    ? processed.timelineSegments[processed.timelineSegments.length - 1].running
     : null
 
   return (
@@ -119,9 +124,9 @@ export default function App() {
               <Radio className="h-3.5 w-3.5" />
               {currentStatus ? 'Pump Running' : 'Pump Stopped'}
             </span>
-            {lastFetch && (
-              <span className="text-xs text-slate-600">
-                Updated {format(lastFetch, 'HH:mm:ss')}
+            {processed?.lastMessageTimestamp && (
+              <span className="text-xs text-slate-500">
+                Last transmission: {new Date(processed.lastMessageTimestamp * 1000).toLocaleTimeString('en-US', { timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </span>
             )}
           </div>
@@ -161,9 +166,11 @@ export default function App() {
                 Runtime Timeline
               </h2>
               <Timeline
-                segments={processed.segments}
-                dayStart={dayStart}
-                dayEnd={dayEnd}
+                segments={processed.timelineSegments}
+                windowStart={bounds.windowStart}
+                windowEnd={bounds.windowEnd}
+                selectedDayStart={bounds.selectedDayStart}
+                selectedDate={selectedDate}
               />
             </section>
 
