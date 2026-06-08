@@ -51,14 +51,14 @@ export interface ProcessedTwoDay extends ProcessedDay {
 
 export function dayBounds(date: Date): { start: number; end: number } {
   const dateStr = date.toLocaleDateString('en-CA', { timeZone: TIMEZONE })
-  const startLocal = new Date(`${dateStr}T00:00:00`)
-  const endLocal = new Date(`${dateStr}T23:59:59`)
+  const midnightUTC = new Date(`${dateStr}T00:00:00Z`).getTime()
+  const probe = new Date(`${dateStr}T12:00:00Z`)
+  const probeInCal = new Date(probe.toLocaleString('en-US', { timeZone: TIMEZONE }))
+  const probeInUTC = new Date(probe.toLocaleString('en-US', { timeZone: 'UTC' }))
+  const offsetMs = probeInUTC.getTime() - probeInCal.getTime()
 
-  const offset = getTimezoneOffsetMs(startLocal)
-  return {
-    start: Math.floor((startLocal.getTime() + offset) / 1000),
-    end: Math.floor((endLocal.getTime() + offset) / 1000),
-  }
+  const start = Math.floor((midnightUTC + offsetMs) / 1000)
+  return { start, end: start + 86399 }
 }
 
 export function previousCalendarDay(date: Date): Date {
@@ -88,11 +88,6 @@ export function isTodayInTimezone(date: Date): boolean {
   return nowStr === dateStr
 }
 
-function getTimezoneOffsetMs(date: Date): number {
-  const utcStr = date.toLocaleString('en-US', { timeZone: 'UTC' })
-  const tzStr = date.toLocaleString('en-US', { timeZone: TIMEZONE })
-  return new Date(utcStr).getTime() - new Date(tzStr).getTime()
-}
 
 function extractStateChanges(messages: FlespiMessage[]): StateChange[] {
   const sorted = [...messages]
