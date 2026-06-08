@@ -188,11 +188,9 @@ export function buildEvents(changes: StateChange[]): PumpEvent[] {
   }))
 }
 
-export function computeStats(segments: TimelineSegment[]): DayStats {
+export function computeStats(segments: TimelineSegment[], events: PumpEvent[]): DayStats {
   let totalRuntime = 0
   let longestRun = 0
-  let startCount = 0
-  let stopCount = 0
 
   for (const seg of segments) {
     const duration = seg.end - seg.start
@@ -202,12 +200,8 @@ export function computeStats(segments: TimelineSegment[]): DayStats {
     }
   }
 
-  for (let i = 1; i < segments.length; i++) {
-    if (segments[i].running && !segments[i - 1].running) startCount++
-    if (!segments[i].running && segments[i - 1].running) stopCount++
-  }
-
-  if (segments.length > 0 && segments[0].running) startCount++
+  const startCount = events.filter((e) => e.type === 'start').length
+  const stopCount = events.filter((e) => e.type === 'stop').length
 
   return {
     totalRuntimeHours: totalRuntime / 3600,
@@ -250,7 +244,7 @@ export function processDayMessages(
   return {
     segments,
     events,
-    stats: computeStats(segments),
+    stats: computeStats(segments, events),
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: sorted.length > 0 ? sorted[0].timestamp : null,
@@ -277,12 +271,13 @@ export function processTwoDayMessages(
   const timelineSegments = buildSegments(windowChanges, windowStart, windowEnd)
   const daySegments = buildSegments(dayChanges, selectedDayStart, selectedDayEnd)
 
+  const dayEvents = buildEvents(dayChanges)
   const allSorted = [...windowMessages].sort((a, b) => b.timestamp - a.timestamp)
   return {
     segments: daySegments,
     timelineSegments,
-    events: buildEvents(dayChanges),
-    stats: computeStats(daySegments),
+    events: dayEvents,
+    stats: computeStats(daySegments, dayEvents),
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: allSorted.length > 0 ? allSorted[0].timestamp : null,
