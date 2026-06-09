@@ -10,6 +10,7 @@ export interface FlespiMessage {
   'position.latitude'?: number
   'position.longitude'?: number
   'position.speed'?: number
+  'device.temperature'?: number
 }
 
 interface FlespiResponse<T> {
@@ -25,7 +26,7 @@ export async function fetchDeviceMessages(
     from,
     to,
     fields:
-      'timestamp,engine.ignition.status,position.latitude,position.longitude,position.speed',
+      'timestamp,engine.ignition.status,position.latitude,position.longitude,position.speed,device.temperature',
   })
 
   const url = `${FLESPI_API_BASE}/gw/devices/${DEVICE_ID}/messages?data=${encodeURIComponent(data)}`

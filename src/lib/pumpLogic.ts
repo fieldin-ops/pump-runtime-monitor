@@ -29,6 +29,11 @@ export interface DayStats {
   longestRunHours: number
 }
 
+export interface TemperaturePoint {
+  timestamp: number
+  tempF: number
+}
+
 export interface ProcessedDay {
   segments: TimelineSegment[]
   events: PumpEvent[]
@@ -36,6 +41,7 @@ export interface ProcessedDay {
   lastPosition: { lat: number; lng: number } | null
   messageCount: number
   lastMessageTimestamp: number | null
+  temperature: TemperaturePoint[]
 }
 
 export interface TwoDayBounds {
@@ -207,6 +213,22 @@ export function computeStats(segments: TimelineSegment[], events: PumpEvent[], c
   }
 }
 
+export function celsiusToFahrenheit(celsius: number): number {
+  return celsius * (9 / 5) + 32
+}
+
+export function extractTemperatureReadings(
+  messages: FlespiMessage[],
+): TemperaturePoint[] {
+  return messages
+    .filter((m) => m['device.temperature'] !== undefined)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .map((m) => ({
+      timestamp: m.timestamp,
+      tempF: celsiusToFahrenheit(m['device.temperature']!),
+    }))
+}
+
 export function getLastPosition(
   messages: FlespiMessage[],
 ): { lat: number; lng: number } | null {
@@ -245,6 +267,7 @@ export function processDayMessages(
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: sorted.length > 0 ? sorted[0].timestamp : null,
+    temperature: extractTemperatureReadings(dayMessages),
   }
 }
 
@@ -279,6 +302,7 @@ export function processTwoDayMessages(
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: allSorted.length > 0 ? allSorted[0].timestamp : null,
+    temperature: extractTemperatureReadings(windowMessages),
   }
 }
 

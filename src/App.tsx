@@ -171,6 +171,7 @@ export default function App() {
                 windowEnd={bounds.windowEnd}
                 selectedDayStart={bounds.selectedDayStart}
                 selectedDate={selectedDate}
+                temperature={processed.temperature}
               />
             </section>
 
