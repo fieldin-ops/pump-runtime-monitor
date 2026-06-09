@@ -2,13 +2,15 @@ import { MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapPin } from 'lucide-react'
-import { DEVICE_NAME } from '../lib/constants'
+import { PUMP_SITE_NAME } from '../lib/constants'
 
 const pumpIcon = L.divIcon({
   className: '',
-  html: `<div style="background:#10b981;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px rgba(16,185,129,0.6)"></div>`,
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
+  html: `<div style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:white;border-radius:50%;border:3px solid #10b981;box-shadow:0 2px 10px rgba(0,0,0,0.4)">
+    <img src="${import.meta.env.BASE_URL}pump-icon.png" style="width:42px;height:42px;object-fit:contain" />
+  </div>`,
+  iconSize: [60, 60],
+  iconAnchor: [30, 30],
 })
 
 interface PumpMapProps {
@@ -40,8 +42,8 @@ export function PumpMap({ position }: PumpMapProps) {
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
         <Marker position={[position.lat, position.lng]} icon={pumpIcon}>
-          <Tooltip permanent direction="top" offset={[0, -10]} className="pump-label">
-            {DEVICE_NAME}
+          <Tooltip permanent direction="top" offset={[0, -34]} className="pump-label">
+            {PUMP_SITE_NAME}
           </Tooltip>
         </Marker>
       </MapContainer>

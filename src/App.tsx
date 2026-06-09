@@ -15,7 +15,7 @@ import { PumpMap } from './components/PumpMap'
 import { Timeline } from './components/Timeline'
 import {
   DEVICE_IDENT,
-  DEVICE_NAME,
+  PUMP_SITE_NAME,
   FLESPI_TOKEN,
   FLESPI_TOKEN_PLACEHOLDER,
   TIMEZONE,
@@ -85,7 +85,7 @@ export default function App() {
                   Pump Runtime Monitor
                 </h1>
                 <p className="text-sm text-slate-400">
-                  {DEVICE_NAME} · IMEI {DEVICE_IDENT}
+                  Pump Site: {PUMP_SITE_NAME} &nbsp;·&nbsp; Device ID: {DEVICE_IDENT}
                 </p>
               </div>
             </div>
