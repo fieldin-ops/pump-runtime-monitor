@@ -79,7 +79,7 @@ export function previousCalendarDay(date: Date): Date {
 export function twoDayBounds(date: Date): TwoDayBounds {
   const selected = dayBounds(date)
   return {
-    windowStart: selected.start,
+    windowStart: selected.start - 300,
     windowEnd: selected.end,
     selectedDayStart: selected.start,
     selectedDayEnd: selected.end,
@@ -217,16 +217,38 @@ export function celsiusToFahrenheit(celsius: number): number {
   return celsius * (9 / 5) + 32
 }
 
+export function filterTemperatureChanges(
+  points: TemperaturePoint[],
+): TemperaturePoint[] {
+  if (points.length === 0) return []
+
+  const sorted = [...points].sort((a, b) => a.timestamp - b.timestamp)
+  const filtered: TemperaturePoint[] = [sorted[0]]
+  let lastRounded = Math.round(sorted[0].tempF)
+
+  for (let i = 1; i < sorted.length; i++) {
+    const rounded = Math.round(sorted[i].tempF)
+    if (rounded !== lastRounded) {
+      filtered.push(sorted[i])
+      lastRounded = rounded
+    }
+  }
+
+  return filtered
+}
+
 export function extractTemperatureReadings(
   messages: FlespiMessage[],
 ): TemperaturePoint[] {
-  return messages
+  const readings = messages
     .filter((m) => m['device.temperature'] !== undefined)
     .sort((a, b) => a.timestamp - b.timestamp)
     .map((m) => ({
       timestamp: m.timestamp,
       tempF: celsiusToFahrenheit(m['device.temperature']!),
     }))
+
+  return filterTemperatureChanges(readings)
 }
 
 export function getLastPosition(
@@ -285,15 +307,32 @@ export function processTwoDayMessages(
     (m) => m.timestamp >= selectedDayStart && m.timestamp <= selectedDayEnd,
   )
 
-  const windowChanges = filterNoise(extractStateChanges(windowMessages))
-  const dayChanges = filterNoise(extractStateChanges(dayMessages))
+  // Get all state changes including the pre-midnight buffer for context
+  const allChanges = filterNoise(extractStateChanges(windowMessages))
 
-  const timelineSegments = buildSegments(windowChanges, windowStart, windowEnd)
-  const daySegments = buildSegments(dayChanges, selectedDayStart, selectedDayEnd)
+  // Find the known state at midnight from buffer changes
+  const preChanges = allChanges.filter((c) => c.timestamp < selectedDayStart)
+  const initialState = preChanges.length > 0
+    ? preChanges[preChanges.length - 1].running
+    : null
 
-  const dayEvents = buildEvents(dayChanges)
+  // Only changes within the selected day
+  const dayChanges = allChanges.filter(
+    (c) => c.timestamp >= selectedDayStart && c.timestamp <= selectedDayEnd,
+  )
+
+  // If the first day change matches the initial state from buffer,
+  // it's a continuation — not a real event. Remove it.
+  const effectiveChanges = (initialState !== null && dayChanges.length > 0 && dayChanges[0].running === initialState)
+    ? dayChanges.slice(1)
+    : dayChanges
+
+  const daySegments = buildSegments(effectiveChanges, selectedDayStart, selectedDayEnd)
+  const timelineSegments = daySegments
+
+  const dayEvents = buildEvents(effectiveChanges)
   const isToday = isTodayInTimezone(date)
-  const allSorted = [...windowMessages].sort((a, b) => b.timestamp - a.timestamp)
+  const allSorted = [...dayMessages].sort((a, b) => b.timestamp - a.timestamp)
   return {
     segments: daySegments,
     timelineSegments,
@@ -302,7 +341,7 @@ export function processTwoDayMessages(
     lastPosition: getLastPosition(dayMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: allSorted.length > 0 ? allSorted[0].timestamp : null,
-    temperature: extractTemperatureReadings(windowMessages),
+    temperature: extractTemperatureReadings(dayMessages),
   }
 }
 

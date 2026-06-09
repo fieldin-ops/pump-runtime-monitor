@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { Play, Square } from 'lucide-react'
+import { Play, Square, Thermometer } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { TIMEZONE } from '../lib/constants'
 import type { TemperaturePoint, TimelineSegment } from '../lib/pumpLogic'
@@ -19,8 +19,6 @@ interface TimelineProps {
 }
 
 const HOUR_MARKS_24 = [0, 3, 6, 9, 12, 15, 18, 21, 24]
-/** Break the temp line when consecutive readings are farther apart than this. */
-const TEMP_GAP_THRESHOLD_SEC = 15 * 60
 
 function formatTime(ts: number): string {
   return new Date(ts * 1000).toLocaleTimeString('en-US', {
@@ -33,60 +31,6 @@ function formatTime(ts: number): string {
 
 function formatHourLabel(hour: number): string {
   return `${String(hour === 24 ? 0 : hour).padStart(2, '0')}:00`
-}
-
-function splitTemperatureSegments(
-  points: TemperaturePoint[],
-  gapThresholdSec: number,
-): TemperaturePoint[][] {
-  if (points.length === 0) return []
-
-  const sorted = [...points].sort((a, b) => a.timestamp - b.timestamp)
-  const segments: TemperaturePoint[][] = [[sorted[0]]]
-
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1]
-    const curr = sorted[i]
-    if (curr.timestamp - prev.timestamp > gapThresholdSec) {
-      segments.push([curr])
-    } else {
-      segments[segments.length - 1].push(curr)
-    }
-  }
-
-  return segments
-}
-
-function pickLabelPoints(
-  points: TemperaturePoint[],
-  windowStart: number,
-  windowEnd: number,
-  maxLabels = 7,
-): TemperaturePoint[] {
-  if (points.length <= maxLabels) return points
-
-  const interval = (windowEnd - windowStart) / (maxLabels - 1)
-  const labels: TemperaturePoint[] = []
-
-  for (let i = 0; i < maxLabels; i++) {
-    const targetTs = windowStart + i * interval
-    let closest = points[0]
-    let minDist = Math.abs(points[0].timestamp - targetTs)
-
-    for (const pt of points) {
-      const dist = Math.abs(pt.timestamp - targetTs)
-      if (dist < minDist) {
-        minDist = dist
-        closest = pt
-      }
-    }
-
-    if (!labels.some((l) => l.timestamp === closest.timestamp)) {
-      labels.push(closest)
-    }
-  }
-
-  return labels
 }
 
 export function Timeline({
@@ -125,61 +69,18 @@ export function Timeline({
 
   const dateLabel = format(selectedDate, 'EEE, MMM d, yyyy')
 
-  const tempChart = useMemo(() => {
+  const tempSummary = useMemo(() => {
     if (temperature.length === 0) return null
 
     const sorted = [...temperature].sort((a, b) => a.timestamp - b.timestamp)
     const temps = sorted.map((p) => p.tempF)
     const minTemp = Math.min(...temps)
     const maxTemp = Math.max(...temps)
-    const range = maxTemp - minTemp || 1
-    const padding = range * 0.1
+    const startTemp = sorted[0].tempF
+    const latestTemp = sorted[sorted.length - 1].tempF
 
-    const toY = (tempF: number) => {
-      const normalized = (tempF - (minTemp - padding)) / (range + padding * 2)
-      return 1 - normalized
-    }
-
-    const pointCoords = (p: TemperaturePoint) => ({
-      x: timestampPercent(p.timestamp, windowStart, windowEnd),
-      y: toY(p.tempF) * 100,
-      point: p,
-    })
-
-    const segments = splitTemperatureSegments(
-      sorted,
-      TEMP_GAP_THRESHOLD_SEC,
-    ).map((segment) => {
-      const coords = segment.map(pointCoords)
-      const linePath = coords
-        .map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`)
-        .join(' ')
-      const areaPath =
-        coords.length >= 2
-          ? `${linePath} L ${coords[coords.length - 1].x} 100 L ${coords[0].x} 100 Z`
-          : null
-      return { coords, linePath, areaPath }
-    })
-
-    const labelPoints = pickLabelPoints(sorted, windowStart, windowEnd).map(
-      (p) => ({
-        ...p,
-        yPct: toY(p.tempF) * 100,
-      }),
-    )
-
-    const currentTemp =
-      [...sorted].reverse().find((p) => p.timestamp <= now)?.tempF ??
-      sorted[sorted.length - 1]?.tempF
-
-    return {
-      segments,
-      labelPoints,
-      minTemp,
-      maxTemp,
-      currentTemp,
-    }
-  }, [temperature, windowStart, windowEnd, now])
+    return { startTemp, minTemp, maxTemp, latestTemp }
+  }, [temperature])
 
   return (
     <div className="space-y-2">
@@ -187,95 +88,22 @@ export function Timeline({
         {dateLabel}
       </div>
 
-      {tempChart && (
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-0.5 text-[11px]">
-            <span className="font-medium text-amber-300/90">Device Temperature</span>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-slate-300">
-              <span>
-                <span className="text-slate-500">Now </span>
-                <span className="font-semibold text-amber-300">
-                  {Math.round(tempChart.currentTemp)}°F
-                </span>
-              </span>
-              <span>
-                <span className="text-slate-500">Min </span>
-                <span className="text-amber-200/90">
-                  {Math.round(tempChart.minTemp)}°F
-                </span>
-              </span>
-              <span>
-                <span className="text-slate-500">Max </span>
-                <span className="text-amber-200/90">
-                  {Math.round(tempChart.maxTemp)}°F
-                </span>
-              </span>
-            </div>
-          </div>
-
-          <div className="relative h-14 overflow-hidden rounded-lg border border-amber-500/30 bg-gradient-to-b from-amber-950/40 to-slate-900/80">
-            <svg
-              className="absolute inset-0 h-full w-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="temp-fill-gradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgb(251 146 60 / 0.35)" />
-                  <stop offset="100%" stopColor="rgb(251 146 60 / 0.03)" />
-                </linearGradient>
-              </defs>
-
-              {tempChart.segments.map((seg, i) => (
-                <g key={i}>
-                  {seg.areaPath && (
-                    <path d={seg.areaPath} fill="url(#temp-fill-gradient)" />
-                  )}
-                  <path
-                    d={seg.linePath}
-                    fill="none"
-                    stroke="rgb(251 146 60)"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                  {seg.coords.map((c) => (
-                    <circle
-                      key={c.point.timestamp}
-                      cx={c.x}
-                      cy={c.y}
-                      r="1.8"
-                      fill="rgb(253 186 116)"
-                      stroke="rgb(251 146 60)"
-                      strokeWidth="0.6"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  ))}
-                </g>
-              ))}
-            </svg>
-
-            {tempChart.labelPoints.map((pt) => {
-              const left = timestampPercent(pt.timestamp, windowStart, windowEnd)
-              const aboveLine = pt.yPct > 35
-              return (
-                <div
-                  key={pt.timestamp}
-                  className="pointer-events-none absolute -translate-x-1/2"
-                  style={{
-                    left: `${left}%`,
-                    top: aboveLine ? undefined : `${pt.yPct}%`,
-                    bottom: aboveLine ? `${100 - pt.yPct}%` : undefined,
-                    transform: `translateX(-50%) ${aboveLine ? 'translateY(4px)' : 'translateY(-100%) translateY(-4px)'}`,
-                  }}
-                >
-                  <span className="rounded border border-amber-500/40 bg-slate-950/90 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-amber-200 shadow-sm">
-                    {Math.round(pt.tempF)}°
-                  </span>
-                </div>
-              )
-            })}
+      {tempSummary && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2">
+          <Thermometer className="h-4 w-4 text-amber-400" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs">
+            <span className="text-slate-400">
+              Start <span className="font-semibold text-amber-300">{Math.round(tempSummary.startTemp)}°F</span>
+            </span>
+            <span className="text-slate-400">
+              Min <span className="font-semibold text-amber-300">{Math.round(tempSummary.minTemp)}°F</span>
+            </span>
+            <span className="text-slate-400">
+              Max <span className="font-semibold text-amber-300">{Math.round(tempSummary.maxTemp)}°F</span>
+            </span>
+            <span className="text-slate-400">
+              Latest <span className="font-semibold text-amber-300">{Math.round(tempSummary.latestTemp)}°F</span>
+            </span>
           </div>
         </div>
       )}
@@ -377,7 +205,7 @@ export function Timeline({
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+      <div className="flex items-center gap-4 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-5 rounded-sm bg-emerald-500/80" />
           <Play className="h-3 w-3 text-emerald-400" />
@@ -388,12 +216,6 @@ export function Timeline({
           <Square className="h-3 w-3 text-slate-400" />
           Pump OFF
         </span>
-        {tempChart && (
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-1 w-5 rounded-sm bg-amber-400" />
-            Device Temp (°F)
-          </span>
-        )}
       </div>
     </div>
   )
