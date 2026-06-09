@@ -72,10 +72,8 @@ export function previousCalendarDay(date: Date): Date {
 
 export function twoDayBounds(date: Date): TwoDayBounds {
   const selected = dayBounds(date)
-  const prev = dayBounds(previousCalendarDay(date))
-  const firstDayStart = dayBounds(new Date(`${FIRST_DAY}T12:00:00`)).start
   return {
-    windowStart: Math.max(prev.start, firstDayStart),
+    windowStart: selected.start,
     windowEnd: selected.end,
     selectedDayStart: selected.start,
     selectedDayEnd: selected.end,
