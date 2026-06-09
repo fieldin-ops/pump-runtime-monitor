@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { Play, Square } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { TIMEZONE } from '../lib/constants'
@@ -64,8 +65,13 @@ export function Timeline({
     [],
   )
 
+  const dateLabel = format(selectedDate, 'EEE, MMM d, yyyy')
+
   return (
     <div className="space-y-2">
+      <div className="mb-1 text-center text-xs font-medium text-slate-400">
+        {dateLabel}
+      </div>
       <div className="relative h-10 overflow-hidden rounded-lg border border-slate-700/50 bg-slate-900/80">
         {segments.map((seg, i) => {
           const { left, width } = segmentPercent(seg, windowStart, windowEnd)
