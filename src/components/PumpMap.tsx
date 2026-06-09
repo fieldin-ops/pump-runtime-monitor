@@ -2,8 +2,6 @@ import { MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapPin } from 'lucide-react'
-import { PUMP_SITE_NAME } from '../lib/constants'
-
 const pumpIcon = L.divIcon({
   className: '',
   html: `<div style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:white;border-radius:50%;border:3px solid #10b981;box-shadow:0 2px 10px rgba(0,0,0,0.4)">
@@ -15,9 +13,10 @@ const pumpIcon = L.divIcon({
 
 interface PumpMapProps {
   position: { lat: number; lng: number } | null
+  siteName: string
 }
 
-export function PumpMap({ position }: PumpMapProps) {
+export function PumpMap({ position, siteName }: PumpMapProps) {
   if (!position) {
     return (
       <div className="flex h-64 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-900/50">
@@ -43,7 +42,7 @@ export function PumpMap({ position }: PumpMapProps) {
         />
         <Marker position={[position.lat, position.lng]} icon={pumpIcon}>
           <Tooltip permanent direction="top" offset={[0, -34]} className="pump-label">
-            {PUMP_SITE_NAME}
+            {siteName}
           </Tooltip>
         </Marker>
       </MapContainer>

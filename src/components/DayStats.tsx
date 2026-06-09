@@ -4,7 +4,6 @@ import { formatDuration } from '../lib/pumpLogic'
 
 interface DayStatsProps {
   stats: DayStatsType
-  messageCount: number
 }
 
 function StatCard({
@@ -31,9 +30,9 @@ function StatCard({
   )
 }
 
-export function DayStats({ stats, messageCount }: DayStatsProps) {
+export function DayStats({ stats }: DayStatsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatCard
         label="Runtime"
         value={formatDuration(stats.totalRuntimeHours)}
@@ -57,12 +56,6 @@ export function DayStats({ stats, messageCount }: DayStatsProps) {
         value={formatDuration(stats.longestRunHours)}
         icon={Activity}
         accent="bg-amber-500/15 text-amber-400"
-      />
-      <StatCard
-        label="Messages"
-        value={messageCount}
-        icon={Activity}
-        accent="bg-slate-700/50 text-slate-300"
       />
     </div>
   )

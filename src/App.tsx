@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import {
   AlertTriangle,
+  ArrowLeft,
   Gauge,
   Loader2,
   MapPin,
@@ -8,17 +9,17 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { DayPicker } from './components/DayPicker'
 import { DayStats } from './components/DayStats'
 import { EventList } from './components/EventList'
 import { PumpMap } from './components/PumpMap'
 import { Timeline } from './components/Timeline'
 import {
-  DEVICE_IDENT,
-  PUMP_SITE_NAME,
   FLESPI_TOKEN,
   FLESPI_TOKEN_PLACEHOLDER,
   TIMEZONE,
+  getPumpSite,
 } from './lib/constants'
 import { fetchDeviceMessages } from './lib/flespi'
 import {
@@ -28,6 +29,9 @@ import {
 } from './lib/pumpLogic'
 
 export default function App() {
+  const { siteId } = useParams<{ siteId: string }>()
+  const pump = siteId ? getPumpSite(siteId) : undefined
+
   const [selectedDate, setSelectedDate] = useState(() => {
     const nowInTz = new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })
     return new Date(`${nowInTz}T12:00:00`)
@@ -37,6 +41,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
+    if (!pump) return
+
     if (FLESPI_TOKEN === FLESPI_TOKEN_PLACEHOLDER) {
       setError(
         'Set your flespi token in src/lib/constants.ts (FLESPI_TOKEN). Create one at https://flespi.io/tokens',
@@ -50,7 +56,11 @@ export default function App() {
 
     try {
       const { windowStart, windowEnd } = twoDayBounds(selectedDate)
-      const messages = await fetchDeviceMessages(windowStart, windowEnd)
+      const messages = await fetchDeviceMessages(
+        pump.flespiDeviceId,
+        windowStart,
+        windowEnd,
+      )
       setProcessed(processTwoDayMessages(messages, selectedDate))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
@@ -58,13 +68,17 @@ export default function App() {
     } finally {
       setLoading(false)
     }
-  }, [selectedDate])
+  }, [selectedDate, pump])
 
   useEffect(() => {
     loadData()
     const interval = setInterval(loadData, 60_000)
     return () => clearInterval(interval)
   }, [loadData])
+
+  if (!siteId || !pump) {
+    return <Navigate to="/" replace />
+  }
 
   const bounds = twoDayBounds(selectedDate)
   const currentStatus = processed?.timelineSegments.length
@@ -77,15 +91,22 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
+              <Link
+                to="/"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800/50 text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200"
+                aria-label="Back to fleet overview"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/30">
                 <Gauge className="h-5 w-5 text-cyan-400" />
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-white">
-                  Pump Runtime Monitor
+                  {pump.name}
                 </h1>
                 <p className="text-sm text-slate-400">
-                  Pump Site: {PUMP_SITE_NAME} &nbsp;·&nbsp; Device ID: {DEVICE_IDENT}
+                  Pump Site &nbsp;·&nbsp; Device ID: {pump.deviceId}
                 </p>
               </div>
             </div>
@@ -157,7 +178,6 @@ export default function App() {
               </h2>
               <DayStats
                 stats={processed.stats}
-                messageCount={processed.messageCount}
               />
             </section>
 
@@ -181,7 +201,7 @@ export default function App() {
                   <MapPin className="h-4 w-4" />
                   Pump Location
                 </h2>
-                <PumpMap position={processed.lastPosition} />
+                <PumpMap position={processed.lastPosition} siteName={pump.name} />
               </section>
 
               <section className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-5">

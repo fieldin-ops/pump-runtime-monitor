@@ -1,5 +1,4 @@
 import {
-  DEVICE_ID,
   FLESPI_API_BASE,
   FLESPI_TOKEN,
 } from './constants'
@@ -19,6 +18,7 @@ interface FlespiResponse<T> {
 }
 
 export async function fetchDeviceMessages(
+  deviceId: number,
   from: number,
   to: number,
 ): Promise<FlespiMessage[]> {
@@ -29,7 +29,7 @@ export async function fetchDeviceMessages(
       'timestamp,engine.ignition.status,position.latitude,position.longitude,position.speed,device.temperature',
   })
 
-  const url = `${FLESPI_API_BASE}/gw/devices/${DEVICE_ID}/messages?data=${encodeURIComponent(data)}`
+  const url = `${FLESPI_API_BASE}/gw/devices/${deviceId}/messages?data=${encodeURIComponent(data)}`
 
   const response = await fetch(url, {
     headers: {
