@@ -39,5 +39,8 @@ export const FIRST_DAY = '2026-06-08'
 export const NOISE_WINDOW_SECONDS = 60
 export const NOISE_FLIP_THRESHOLD = 3
 
-/** No message within this window is treated as a communication issue */
-export const COMMUNICATION_TIMEOUT_SECONDS = 30 * 60
+/** Running pumps transmit every ~3 min; flag if silent longer than this */
+export const COMMUNICATION_TIMEOUT_RUNNING_SECONDS = 30 * 60
+
+/** Stopped pumps ping every 12 h; flag if silent longer than this (1 h buffer) */
+export const COMMUNICATION_TIMEOUT_STOPPED_SECONDS = 13 * 60 * 60

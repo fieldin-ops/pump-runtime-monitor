@@ -1,11 +1,15 @@
 import {
-  COMMUNICATION_TIMEOUT_SECONDS,
+  COMMUNICATION_TIMEOUT_RUNNING_SECONDS,
+  COMMUNICATION_TIMEOUT_STOPPED_SECONDS,
   type PumpSiteConfig,
 } from './constants'
 import { fetchDeviceMessages } from './flespi'
 import {
+  buildSegments,
   celsiusToFahrenheit,
   dayBounds,
+  extractStateChanges,
+  filterNoise,
   formatDuration,
   processTwoDayMessages,
   type TimelineSegment,
@@ -18,6 +22,8 @@ export interface PumpSummary {
   running: boolean | null
   lastRunCycleHours: number | null
   lastRunCycleOngoing: boolean
+  lastRunCycleStart: number | null
+  lastRunCycleEnd: number | null
   lastTransmissionTimestamp: number | null
   latestTemperatureF: number | null
   communicating: boolean
@@ -27,7 +33,7 @@ export interface PumpSummary {
 function getLastRunCycle(
   segments: TimelineSegment[],
   now: number,
-): { hours: number; ongoing: boolean } | null {
+): { hours: number; ongoing: boolean; start: number; end: number } | null {
   const runningSegments = segments.filter((s) => s.running)
   if (runningSegments.length === 0) return null
 
@@ -36,7 +42,7 @@ function getLastRunCycle(
   const effectiveEnd = ongoing ? now : last.end
   const hours = (effectiveEnd - last.start) / 3600
 
-  return { hours, ongoing }
+  return { hours, ongoing, start: last.start, end: effectiveEnd }
 }
 
 export function processPumpSummary(
@@ -53,7 +59,12 @@ export function processPumpSummary(
       ? processed.timelineSegments[processed.timelineSegments.length - 1].running
       : null
 
-  const lastRun = getLastRunCycle(processed.timelineSegments, now)
+  // Build segments from ALL fetched messages to find last run cycle
+  const sortedAsc = [...messages].sort((a, b) => a.timestamp - b.timestamp)
+  const allChanges = filterNoise(extractStateChanges(sortedAsc))
+  const windowStart = sortedAsc.length > 0 ? sortedAsc[0].timestamp : now
+  const allSegments = buildSegments(allChanges, windowStart, now)
+  const lastRun = getLastRunCycle(allSegments, now)
 
   const sorted = [...messages].sort((a, b) => b.timestamp - a.timestamp)
   const lastTransmissionTimestamp =
@@ -65,15 +76,22 @@ export function processPumpSummary(
       ? celsiusToFahrenheit(latestTempMsg['device.temperature']!)
       : null
 
+  const communicationTimeoutSeconds =
+    running === true
+      ? COMMUNICATION_TIMEOUT_RUNNING_SECONDS
+      : COMMUNICATION_TIMEOUT_STOPPED_SECONDS
+
   const communicating =
     lastTransmissionTimestamp !== null &&
-    now - lastTransmissionTimestamp <= COMMUNICATION_TIMEOUT_SECONDS
+    now - lastTransmissionTimestamp <= communicationTimeoutSeconds
 
   return {
     pump,
     running,
     lastRunCycleHours: lastRun?.hours ?? null,
     lastRunCycleOngoing: lastRun?.ongoing ?? false,
+    lastRunCycleStart: lastRun?.start ?? null,
+    lastRunCycleEnd: lastRun?.end ?? null,
     lastTransmissionTimestamp,
     latestTemperatureF,
     communicating,
@@ -94,6 +112,8 @@ export async function fetchPumpSummary(pump: PumpSiteConfig): Promise<PumpSummar
       running: null,
       lastRunCycleHours: null,
       lastRunCycleOngoing: false,
+      lastRunCycleStart: null,
+      lastRunCycleEnd: null,
       lastTransmissionTimestamp: null,
       latestTemperatureF: null,
       communicating: false,
@@ -121,11 +141,26 @@ export function formatLastTransmission(ts: number | null): string {
   })
 }
 
+function formatCycleTimestamp(ts: number): string {
+  return new Date(ts * 1000).toLocaleString('en-US', {
+    timeZone: TIMEZONE,
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+}
+
 export function formatLastRunCycle(
   hours: number | null,
   ongoing: boolean,
+  start: number | null,
+  end: number | null,
 ): string {
-  if (hours === null) return '—'
-  const label = formatDuration(hours)
-  return ongoing ? `${label} (running)` : label
+  if (hours === null || start === null) return '—'
+  const duration = formatDuration(hours)
+  const startStr = formatCycleTimestamp(start)
+  const endStr = ongoing ? 'now' : end ? formatCycleTimestamp(end) : ''
+  return `${duration} (${startStr} → ${endStr})`
 }

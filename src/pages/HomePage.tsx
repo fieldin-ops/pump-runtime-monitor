@@ -76,11 +76,15 @@ export function HomePage() {
           type: 'error',
         })
       } else if (!s.communicating) {
+        const message =
+          s.running === true
+            ? 'No transmission in the last 30 minutes'
+            : 'No transmission in the last 13 hours'
         items.push({
           id: `${s.pump.siteId}-comm`,
           siteName: s.pump.name,
           siteId: s.pump.siteId,
-          message: 'No transmission in the last 30 minutes',
+          message,
           type: 'communication',
         })
       }
@@ -184,7 +188,7 @@ export function HomePage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <KpiCard
               label="Total Pumps"
-              value={loading && summaries.length === 0 ? '—' : `${summaries.length}/${totalPumps}`}
+              value={loading && summaries.length === 0 ? '—' : String(totalPumps)}
               icon={<Droplets className="h-5 w-5 text-emerald-400" />}
             />
             <KpiCard
@@ -230,7 +234,7 @@ export function HomePage() {
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Last Cycle</th>
                     <th className="px-4 py-3">Temp</th>
-                    <th className="px-4 py-3">Last Transmission</th>
+                    <th className="px-4 py-3">Last Comm</th>
                     <th className="px-4 py-3">Comm</th>
                     <th className="px-4 py-3" />
                   </tr>
@@ -319,7 +323,7 @@ function PumpSiteRow({ summary }: { summary: PumpSummary }) {
         </span>
       </td>
       <td className="px-4 py-3 text-slate-300">
-        {formatLastRunCycle(summary.lastRunCycleHours, summary.lastRunCycleOngoing)}
+        {formatLastRunCycle(summary.lastRunCycleHours, summary.lastRunCycleOngoing, summary.lastRunCycleStart, summary.lastRunCycleEnd)}
       </td>
       <td className="px-4 py-3 text-slate-300">
         {summary.latestTemperatureF !== null

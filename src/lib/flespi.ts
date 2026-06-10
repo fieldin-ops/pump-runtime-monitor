@@ -49,3 +49,60 @@ export async function fetchDeviceMessages(
 
   return body.result ?? []
 }
+
+export async function fetchLastTimestamp(
+  deviceId: number,
+): Promise<number | null> {
+  const data = JSON.stringify({
+    reverse: true,
+    count: 1,
+    fields: 'timestamp',
+  })
+
+  const url = `${FLESPI_API_BASE}/gw/devices/${deviceId}/messages?data=${encodeURIComponent(data)}`
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `FlespiToken ${FLESPI_TOKEN}`,
+    },
+  })
+
+  if (!response.ok) return null
+
+  const body = (await response.json()) as FlespiResponse<FlespiMessage>
+  const messages = body.result ?? []
+  return messages.length > 0 ? messages[0].timestamp : null
+}
+
+export async function fetchLastPosition(
+  deviceId: number,
+): Promise<{ lat: number; lng: number } | null> {
+  const data = JSON.stringify({
+    reverse: true,
+    count: 10,
+    fields: 'position.latitude,position.longitude',
+  })
+
+  const url = `${FLESPI_API_BASE}/gw/devices/${deviceId}/messages?data=${encodeURIComponent(data)}`
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `FlespiToken ${FLESPI_TOKEN}`,
+    },
+  })
+
+  if (!response.ok) return null
+
+  const body = (await response.json()) as FlespiResponse<FlespiMessage>
+  const messages = body.result ?? []
+
+  for (const msg of messages) {
+    const lat = msg['position.latitude']
+    const lng = msg['position.longitude']
+    if (lat !== undefined && lng !== undefined) {
+      return { lat, lng }
+    }
+  }
+
+  return null
+}

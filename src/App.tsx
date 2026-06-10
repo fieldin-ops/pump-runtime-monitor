@@ -21,7 +21,7 @@ import {
   TIMEZONE,
   getPumpSite,
 } from './lib/constants'
-import { fetchDeviceMessages } from './lib/flespi'
+import { fetchDeviceMessages, fetchLastPosition, fetchLastTimestamp } from './lib/flespi'
 import {
   processTwoDayMessages,
   twoDayBounds,
@@ -61,7 +61,16 @@ export default function App() {
         windowStart,
         windowEnd,
       )
-      setProcessed(processTwoDayMessages(messages, selectedDate))
+      const result = processTwoDayMessages(messages, selectedDate)
+      // Pumps are stationary — fetch last known GPS if not in today's data
+      if (!result.lastPosition) {
+        const pos = await fetchLastPosition(pump.flespiDeviceId)
+        if (pos) result.lastPosition = pos
+      }
+      // Always show the device's absolute last communication
+      const lastTs = await fetchLastTimestamp(pump.flespiDeviceId)
+      if (lastTs) result.lastMessageTimestamp = lastTs
+      setProcessed(result)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
       setProcessed(null)
@@ -147,7 +156,7 @@ export default function App() {
             </span>
             {processed?.lastMessageTimestamp && (
               <span className="text-xs text-slate-500">
-                Last transmission: {new Date(processed.lastMessageTimestamp * 1000).toLocaleTimeString('en-US', { timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+                Last communication: {new Date(processed.lastMessageTimestamp * 1000).toLocaleString('en-US', { timeZone: TIMEZONE, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </span>
             )}
           </div>

@@ -92,7 +92,7 @@ export function isTodayInTimezone(date: Date): boolean {
 }
 
 
-function extractStateChanges(messages: FlespiMessage[]): StateChange[] {
+export function extractStateChanges(messages: FlespiMessage[]): StateChange[] {
   const sorted = [...messages]
     .filter((m) => m['engine.ignition.status'] !== undefined)
     .sort((a, b) => a.timestamp - b.timestamp)
@@ -331,13 +331,14 @@ export function processTwoDayMessages(
 
   const dayEvents = buildEvents(effectiveChanges)
   const isToday = isTodayInTimezone(date)
-  const allSorted = [...dayMessages].sort((a, b) => b.timestamp - a.timestamp)
+  // Use all window messages for last communication (not just selected day)
+  const allSorted = [...windowMessages].sort((a, b) => b.timestamp - a.timestamp)
   return {
     segments: daySegments,
     timelineSegments,
     events: dayEvents,
     stats: computeStats(daySegments, dayEvents, isToday),
-    lastPosition: getLastPosition(dayMessages),
+    lastPosition: getLastPosition(windowMessages),
     messageCount: dayMessages.length,
     lastMessageTimestamp: allSorted.length > 0 ? allSorted[0].timestamp : null,
     temperature: extractTemperatureReadings(dayMessages),
