@@ -196,8 +196,8 @@ export default function App() {
               </h2>
               <Timeline
                 segments={processed.timelineSegments}
-                windowStart={bounds.windowStart}
-                windowEnd={bounds.windowEnd}
+                windowStart={bounds.selectedDayStart}
+                windowEnd={bounds.selectedDayEnd}
                 selectedDayStart={bounds.selectedDayStart}
                 selectedDate={selectedDate}
                 temperature={processed.temperature}

@@ -78,7 +78,7 @@ export function previousCalendarDay(date: Date): Date {
 export function twoDayBounds(date: Date): TwoDayBounds {
   const selected = dayBounds(date)
   return {
-    windowStart: selected.start - 300,
+    windowStart: selected.start - 86400,
     windowEnd: selected.end,
     selectedDayStart: selected.start,
     selectedDayEnd: selected.end,
