@@ -1,4 +1,5 @@
 import {
+  DEBOUNCE_SECONDS,
   NOISE_FLIP_THRESHOLD,
   NOISE_WINDOW_SECONDS,
   TIMEZONE,
@@ -150,6 +151,38 @@ export function filterNoise(changes: StateChange[]): StateChange[] {
   return filtered
 }
 
+/**
+ * Remove brief OFF→ON glitches: if the pump turns OFF and back ON within
+ * DEBOUNCE_SECONDS, discard both the OFF and the subsequent ON.
+ */
+export function debounceChanges(changes: StateChange[]): StateChange[] {
+  if (changes.length < 2) return changes
+
+  const discard = new Set<number>()
+
+  for (let i = 0; i < changes.length - 1; i++) {
+    if (discard.has(i)) continue
+    if (!changes[i].running && changes[i + 1].running) {
+      if (changes[i + 1].timestamp - changes[i].timestamp <= DEBOUNCE_SECONDS) {
+        discard.add(i)
+        discard.add(i + 1)
+      }
+    }
+  }
+
+  if (discard.size === 0) return changes
+
+  const result: StateChange[] = []
+  for (let i = 0; i < changes.length; i++) {
+    if (discard.has(i)) continue
+    const prev = result[result.length - 1]
+    if (!prev || prev.running !== changes[i].running) {
+      result.push(changes[i])
+    }
+  }
+  return result
+}
+
 export function buildSegments(
   changes: StateChange[],
   dayStart: number,
@@ -275,7 +308,7 @@ export function processDayMessages(
     (m) => m.timestamp >= start && m.timestamp <= end,
   )
 
-  const changes = filterNoise(extractStateChanges(dayMessages))
+  const changes = debounceChanges(filterNoise(extractStateChanges(dayMessages)))
   const segments = buildSegments(changes, start, end)
   const events = buildEvents(changes)
 
@@ -307,7 +340,7 @@ export function processTwoDayMessages(
   )
 
   // Get all state changes including the pre-midnight buffer for context
-  const allChanges = filterNoise(extractStateChanges(windowMessages))
+  const allChanges = debounceChanges(filterNoise(extractStateChanges(windowMessages)))
 
   // Find the known state at midnight from buffer changes
   const preChanges = allChanges.filter((c) => c.timestamp < selectedDayStart)

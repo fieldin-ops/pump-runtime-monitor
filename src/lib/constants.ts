@@ -39,6 +39,9 @@ export const FIRST_DAY = '2026-06-08'
 export const NOISE_WINDOW_SECONDS = 60
 export const NOISE_FLIP_THRESHOLD = 3
 
+/** If pump turns OFF and back ON within this many seconds, ignore both as sensor glitch */
+export const DEBOUNCE_SECONDS = 60
+
 /** Running pumps transmit every ~3 min; flag if silent longer than this */
 export const COMMUNICATION_TIMEOUT_RUNNING_SECONDS = 30 * 60
 

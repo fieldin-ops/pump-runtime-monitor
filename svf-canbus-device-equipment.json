@@ -1,0 +1,790 @@
+{
+  "company_id": 4996,
+  "company_name": "South Valley Farms",
+  "queried_at": "2026-06-10",
+  "source": "fieldin MySQL read replica \u2014 equipment + equipment_installations + device_manufacturers",
+  "device_count": 31,
+  "type_summary": {
+    "water_truck": 2,
+    "smart_tractor": 24,
+    "shaker": 2,
+    "sweeper": 3
+  },
+  "devices": {
+    "FL24301": {
+      "equipment_id": 170319,
+      "equipment_uuid": "45088",
+      "equipment_name": "TL227",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "5130ML",
+      "manufacturer": "John Deere",
+      "serial_number": "1P05130MTR8000514",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670437,
+        "assigned_from": "2026-03-12T15:49:48",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 45088,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL25611": {
+      "equipment_id": 169497,
+      "equipment_uuid": "44903",
+      "equipment_name": "TL147",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "5115ML",
+      "manufacturer": "John Deere",
+      "serial_number": "1LV5115MPMM702863",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670427,
+        "assigned_from": "2026-03-10T20:24:18",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44903,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL41456": {
+      "equipment_id": 170484,
+      "equipment_uuid": "45118",
+      "equipment_name": "TL151",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120ALLF10086",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670425,
+        "assigned_from": "2026-03-10T20:04:09",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 45118,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL14471": {
+      "equipment_id": 168308,
+      "equipment_uuid": "44746",
+      "equipment_name": "TL180",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120CMLF13486",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670405,
+        "assigned_from": "2026-03-05T21:44:47",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44746,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "GL12920": {
+      "equipment_id": 163472,
+      "equipment_uuid": "42939",
+      "equipment_name": "TL150",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120KLLF09384",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670431,
+        "assigned_from": "2026-03-11T17:50:02",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 42939,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL20531": {
+      "equipment_id": 171334,
+      "equipment_uuid": "45504",
+      "equipment_name": "TL183",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "13535",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670404,
+        "assigned_from": "2026-03-05T21:41:42",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 45504,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL14212": {
+      "equipment_id": 167074,
+      "equipment_uuid": "44530",
+      "equipment_name": "TL182",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120KMLF13594",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670406,
+        "assigned_from": "2026-03-05T21:59:49",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44530,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL15302": {
+      "equipment_id": 173587,
+      "equipment_uuid": "46327",
+      "equipment_name": "TL226",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "5130ML",
+      "manufacturer": "John Deere",
+      "serial_number": "1P05130MCR8000521",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670436,
+        "assigned_from": "2026-03-11T20:51:05",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46327,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "GL20189": {
+      "equipment_id": 37470,
+      "equipment_uuid": "9726",
+      "equipment_name": "TL137",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120VLLF07252",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670344,
+        "assigned_from": "2026-03-09T20:32:19",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44636,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL31017": {
+      "equipment_id": 167913,
+      "equipment_uuid": "44697",
+      "equipment_name": "SV18",
+      "equipment_type": "sweeper",
+      "equipment_classification": "equipment",
+      "model": "SWP-55V62",
+      "manufacturer": "Flory",
+      "serial_number": "305421",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670401,
+        "assigned_from": "2025-08-15T19:58:00",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44697,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL25515": {
+      "equipment_id": 167788,
+      "equipment_uuid": "44678",
+      "equipment_name": "K0191",
+      "equipment_type": "shaker",
+      "equipment_classification": "equipment",
+      "model": "Sprint",
+      "manufacturer": "OMC",
+      "serial_number": "25006",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670399,
+        "assigned_from": "2025-08-14T20:18:13",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44678,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL25523": {
+      "equipment_id": 164270,
+      "equipment_uuid": "43200",
+      "equipment_name": "TL206",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HRLFC120ANL209883",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670394,
+        "assigned_from": "2025-08-28T18:56:20",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 43200,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL16731": {
+      "equipment_id": 167773,
+      "equipment_uuid": "44676",
+      "equipment_name": "SV 16",
+      "equipment_type": "sweeper",
+      "equipment_classification": "equipment",
+      "model": "SWP-55V62",
+      "manufacturer": "Flory",
+      "serial_number": "305383",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670398,
+        "assigned_from": "2025-08-29T16:04:12",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44676,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL16237": {
+      "equipment_id": 167102,
+      "equipment_uuid": "44533",
+      "equipment_name": "TL209",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120CPL201128",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670391,
+        "assigned_from": "2025-08-18T17:40:56",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44533,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL15897": {
+      "equipment_id": 167139,
+      "equipment_uuid": "44539",
+      "equipment_name": "TL214",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120HNL211751",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670392,
+        "assigned_from": "2025-08-18T21:01:40",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44539,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL15139": {
+      "equipment_id": 167846,
+      "equipment_uuid": "44686",
+      "equipment_name": "K0172",
+      "equipment_type": "shaker",
+      "equipment_classification": "equipment",
+      "model": "Sprint",
+      "manufacturer": "OMC",
+      "serial_number": "24001",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670400,
+        "assigned_from": "2025-08-14T17:00:00",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44686,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "GL18030": {
+      "equipment_id": 166005,
+      "equipment_uuid": "43712",
+      "equipment_name": "TL203",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HRLFC120KNL211207",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670396,
+        "assigned_from": "2025-08-28T21:37:20",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 43712,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "BG268008": {
+      "equipment_id": 174530,
+      "equipment_uuid": "46671",
+      "equipment_name": "TL141",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "F09449",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670421,
+        "assigned_from": "2026-03-09T20:32:42",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46671,
+        "part_number": "20010",
+        "hardware_name": "SML5.5Bx1LTE main box assy",
+        "hardware_app_name": "SML5.5b_1LTE Box"
+      }
+    },
+    "GL20101": {
+      "equipment_id": 162139,
+      "equipment_uuid": "42273",
+      "equipment_name": "TL200",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120ENL210679",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670402,
+        "assigned_from": "2026-03-05T21:28:30",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 42273,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL15822": {
+      "equipment_id": 169695,
+      "equipment_uuid": "44943",
+      "equipment_name": "TL208",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "212029",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670403,
+        "assigned_from": "2026-03-05T21:30:09",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44943,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL14929": {
+      "equipment_id": 173613,
+      "equipment_uuid": "46331",
+      "equipment_name": "TL184",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120C",
+      "manufacturer": "Case",
+      "serial_number": "",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670435,
+        "assigned_from": "2026-03-06T19:46:20",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46331,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL16523": {
+      "equipment_id": 168772,
+      "equipment_uuid": "44850",
+      "equipment_name": "TL185",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120C",
+      "manufacturer": "Case",
+      "serial_number": "",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670407,
+        "assigned_from": "2026-03-06T21:05:44",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44850,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL21117": {
+      "equipment_id": 167242,
+      "equipment_uuid": "44578",
+      "equipment_name": "TL207",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120C",
+      "manufacturer": "Case",
+      "serial_number": "",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670408,
+        "assigned_from": "2026-03-06T21:54:17",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44578,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL24428": {
+      "equipment_id": 169429,
+      "equipment_uuid": "44882",
+      "equipment_name": "TL177",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120LMLF13296",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670413,
+        "assigned_from": "2026-03-09T17:51:54",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44882,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL40244": {
+      "equipment_id": 171342,
+      "equipment_uuid": "45512",
+      "equipment_name": "TL210",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "201184",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670420,
+        "assigned_from": "2026-03-09T18:45:53",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 45098,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL24354": {
+      "equipment_id": 170400,
+      "equipment_uuid": "45112",
+      "equipment_name": "TL152",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120TLLF09558",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670426,
+        "assigned_from": "2026-03-10T20:12:29",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 45112,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "GL14561": {
+      "equipment_id": 175285,
+      "equipment_uuid": "47039",
+      "equipment_name": "TL205",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "120c",
+      "manufacturer": "Case",
+      "serial_number": "HLRFC120CNL209601",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670411,
+        "assigned_from": "2026-03-09T17:29:54",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 47039,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "FL14231": {
+      "equipment_id": 174147,
+      "equipment_uuid": "46586",
+      "equipment_name": "TL143",
+      "equipment_type": "smart_tractor",
+      "equipment_classification": "equipment",
+      "model": "5115ML",
+      "manufacturer": "John Deere",
+      "serial_number": "1LV5115MKLK702731",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670430,
+        "assigned_from": "2026-03-11T16:24:05",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46586,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    },
+    "869616062526366": {
+      "equipment_id": 173910,
+      "equipment_uuid": "46386",
+      "equipment_name": "A377",
+      "equipment_type": "water_truck",
+      "equipment_classification": "equipment",
+      "model": "Water truck",
+      "manufacturer": "Kenworth",
+      "serial_number": "2NK3HM6X4PM245803",
+      "plate": "761639",
+      "manufacture_year": 2022,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670455,
+        "assigned_from": "2026-03-30T19:20:09",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46386,
+        "part_number": "30020",
+        "hardware_name": "TorchX 310",
+        "hardware_app_name": "TorchX 310  - OBD"
+      }
+    },
+    "869616060828665": {
+      "equipment_id": 174065,
+      "equipment_uuid": "46541",
+      "equipment_name": "A376",
+      "equipment_type": "water_truck",
+      "equipment_classification": "equipment",
+      "model": "Water truck",
+      "manufacturer": "Kenworth",
+      "serial_number": "2NK3HM6X2PM245802",
+      "plate": "761638",
+      "manufacture_year": 2022,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670456,
+        "assigned_from": "2026-03-30T18:57:03",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 46541,
+        "part_number": "30020",
+        "hardware_name": "TorchX 310",
+        "hardware_app_name": "TorchX 310  - OBD"
+      }
+    },
+    "FL25826": {
+      "equipment_id": 167935,
+      "equipment_uuid": "44705",
+      "equipment_name": "NS130",
+      "equipment_type": "sweeper",
+      "equipment_classification": "equipment",
+      "model": "SWP-7634",
+      "manufacturer": "Flory",
+      "serial_number": "3046463",
+      "plate": null,
+      "manufacture_year": null,
+      "ownership": "company",
+      "canbus_connected": true,
+      "installation": {
+        "installation_id": 292670390,
+        "assigned_from": "2025-08-15T21:55:24",
+        "status": "current"
+      },
+      "device": {
+        "device_pk": 44705,
+        "part_number": "20009",
+        "hardware_name": "SML5.5B-2xLTE main box assy",
+        "hardware_app_name": "SML5.5b Box"
+      }
+    }
+  }
+}

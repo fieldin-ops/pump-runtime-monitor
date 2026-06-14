@@ -8,6 +8,7 @@ import {
   buildSegments,
   celsiusToFahrenheit,
   dayBounds,
+  debounceChanges,
   extractStateChanges,
   filterNoise,
   formatDuration,
@@ -61,7 +62,7 @@ export function processPumpSummary(
 
   // Build segments from ALL fetched messages to find last run cycle
   const sortedAsc = [...messages].sort((a, b) => a.timestamp - b.timestamp)
-  const allChanges = filterNoise(extractStateChanges(sortedAsc))
+  const allChanges = debounceChanges(filterNoise(extractStateChanges(sortedAsc)))
   const windowStart = sortedAsc.length > 0 ? sortedAsc[0].timestamp : now
   const allSegments = buildSegments(allChanges, windowStart, now)
   const lastRun = getLastRunCycle(allSegments, now)
