@@ -62,11 +62,6 @@ export default function App() {
         windowEnd,
       )
       const result = processTwoDayMessages(messages, selectedDate)
-      // Pumps are stationary — fetch last known GPS if not in today's data
-      if (!result.lastPosition) {
-        const pos = await fetchLastPosition(pump.flespiDeviceId)
-        if (pos) result.lastPosition = pos
-      }
       // Always show the device's absolute last communication
       const lastTs = await fetchLastTimestamp(pump.flespiDeviceId)
       if (lastTs) result.lastMessageTimestamp = lastTs
@@ -210,7 +205,7 @@ export default function App() {
                   <MapPin className="h-4 w-4" />
                   Pump Location
                 </h2>
-                <PumpMap position={processed.lastPosition} siteName={pump.name} />
+                <PumpMap position={pump.location} siteName={pump.name} />
               </section>
 
               <section className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-5">

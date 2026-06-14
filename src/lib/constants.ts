@@ -9,6 +9,7 @@ export interface PumpSiteConfig {
   name: string
   deviceId: string
   flespiDeviceId: number
+  location: { lat: number; lng: number }
 }
 
 export const PUMP_SITES: PumpSiteConfig[] = [
@@ -17,6 +18,7 @@ export const PUMP_SITES: PumpSiteConfig[] = [
     name: 'Chestnut',
     deviceId: '867284062694239',
     flespiDeviceId: 7599984,
+    location: { lat: 38.163784, lng: -121.326439 },
   },
 ]
 
