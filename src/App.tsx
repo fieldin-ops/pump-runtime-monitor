@@ -8,7 +8,7 @@ import {
   Radio,
   RefreshCw,
 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { DayPicker } from './components/DayPicker'
 import { DayStats } from './components/DayStats'
@@ -16,15 +16,17 @@ import { EventList } from './components/EventList'
 import { PumpMap } from './components/PumpMap'
 import { Timeline } from './components/Timeline'
 import {
+  FIRST_DAY,
   FLESPI_TOKEN,
   FLESPI_TOKEN_PLACEHOLDER,
   TIMEZONE,
   getPumpSite,
 } from './lib/constants'
-import { fetchDeviceMessages, fetchLastPosition, fetchLastTimestamp } from './lib/flespi'
+import { fetchDeviceMessages, fetchLastTimestamp } from './lib/flespi'
+import type { FlespiMessage } from './lib/flespi'
 import {
+  dayBounds,
   processTwoDayMessages,
-  twoDayBounds,
   type ProcessedTwoDay,
 } from './lib/pumpLogic'
 
@@ -39,14 +41,28 @@ export default function App() {
   const [processed, setProcessed] = useState<ProcessedTwoDay | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const allMessages = useRef<FlespiMessage[]>([])
+  const lastCommTimestamp = useRef<number | null>(null)
 
-  const loadData = useCallback(async () => {
+  const processForDate = useCallback((date: Date, messages: FlespiMessage[]) => {
+    const { start: dayStart } = dayBounds(date)
+    const windowStart = dayStart - 86400
+    const windowEnd = dayStart + 86400
+    const windowMessages = messages.filter(
+      (m) => m.timestamp >= windowStart && m.timestamp <= windowEnd,
+    )
+    const result = processTwoDayMessages(windowMessages, date)
+    if (lastCommTimestamp.current) {
+      result.lastMessageTimestamp = lastCommTimestamp.current
+    }
+    return result
+  }, [])
+
+  const fetchAllData = useCallback(async () => {
     if (!pump) return
 
     if (FLESPI_TOKEN === FLESPI_TOKEN_PLACEHOLDER) {
-      setError(
-        'Set your flespi token in src/lib/constants.ts (FLESPI_TOKEN). Create one at https://flespi.io/tokens',
-      )
+      setError('Set your flespi token in src/lib/constants.ts (FLESPI_TOKEN).')
       setLoading(false)
       return
     }
@@ -55,36 +71,40 @@ export default function App() {
     setError(null)
 
     try {
-      const { windowStart, windowEnd } = twoDayBounds(selectedDate)
-      const messages = await fetchDeviceMessages(
-        pump.flespiDeviceId,
-        windowStart,
-        windowEnd,
-      )
-      const result = processTwoDayMessages(messages, selectedDate)
-      // Always show the device's absolute last communication
+      const firstDayStart = dayBounds(new Date(`${FIRST_DAY}T12:00:00`)).start - 86400
+      const now = Math.floor(Date.now() / 1000)
+      const messages = await fetchDeviceMessages(pump.flespiDeviceId, firstDayStart, now)
+      allMessages.current = messages
       const lastTs = await fetchLastTimestamp(pump.flespiDeviceId)
-      if (lastTs) result.lastMessageTimestamp = lastTs
-      setProcessed(result)
+      lastCommTimestamp.current = lastTs
+      setProcessed(processForDate(selectedDate, messages))
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
-      setProcessed(null)
     } finally {
       setLoading(false)
     }
-  }, [selectedDate, pump])
+  }, [pump, selectedDate, processForDate])
 
+  // Initial load and auto-refresh every 60s
   useEffect(() => {
-    loadData()
-    const interval = setInterval(loadData, 60_000)
+    fetchAllData()
+    const interval = setInterval(fetchAllData, 60_000)
     return () => clearInterval(interval)
-  }, [loadData])
+  }, [pump])
+
+  // When date changes, just re-process from cached messages (instant)
+  useEffect(() => {
+    if (allMessages.current.length > 0) {
+      setProcessed(processForDate(selectedDate, allMessages.current))
+    }
+  }, [selectedDate, processForDate])
 
   if (!siteId || !pump) {
     return <Navigate to="/" replace />
   }
 
-  const bounds = twoDayBounds(selectedDate)
+  const { start: selectedDayStart, end: selectedDayEnd } = dayBounds(selectedDate)
   const currentStatus = processed?.timelineSegments.length
     ? processed.timelineSegments[processed.timelineSegments.length - 1].running
     : null
@@ -122,7 +142,7 @@ export default function App() {
               />
               <button
                 type="button"
-                onClick={loadData}
+                onClick={() => fetchAllData()}
                 disabled={loading}
                 className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50"
               >
@@ -167,15 +187,15 @@ export default function App() {
           </div>
         )}
 
-        {loading && (
+        {loading && !processed && (
           <div className="flex items-center justify-center gap-2 py-20 text-slate-500">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span className="text-sm">Loading messages from flespi…</span>
           </div>
         )}
 
-        {!loading && processed && (
-          <div className="space-y-8">
+        {processed && (
+          <div className={`space-y-8 transition-opacity ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
             <section>
               <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
                 Daily Summary — {format(selectedDate, 'EEEE, MMM d, yyyy')}
@@ -191,9 +211,9 @@ export default function App() {
               </h2>
               <Timeline
                 segments={processed.timelineSegments}
-                windowStart={bounds.selectedDayStart}
-                windowEnd={bounds.selectedDayEnd}
-                selectedDayStart={bounds.selectedDayStart}
+                windowStart={selectedDayStart}
+                windowEnd={selectedDayEnd}
+                selectedDayStart={selectedDayStart}
                 selectedDate={selectedDate}
                 temperature={processed.temperature}
               />
