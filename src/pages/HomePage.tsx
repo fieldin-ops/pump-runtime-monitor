@@ -10,7 +10,6 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertSummaryBadge } from '../components/AlertSummaryBadge'
 import {
   filterUnreadAlerts,
   useReadAlertIds,
@@ -103,11 +102,6 @@ export function HomePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <AlertSummaryBadge
-                count={activeAlerts.length}
-                totalAlerts={alerts.length}
-                to="/alerts"
-              />
               <button
                 type="button"
                 onClick={loadData}
@@ -142,25 +136,24 @@ export function HomePage() {
               <span className="text-sm">Checking pump status…</span>
             </div>
           ) : activeAlerts.length === 0 ? (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+            <Link
+              to="/alerts"
+              className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/10"
+            >
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               <p className="text-sm text-emerald-400/90">
                 All pumps communicating — no active alerts
               </p>
-            </div>
+            </Link>
           ) : (
-            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
+            <Link
+              to="/alerts"
+              className="flex flex-wrap items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 transition-colors hover:border-red-500/40 hover:bg-red-500/10"
+            >
               <p className="text-sm text-red-300">
                 {activeAlerts.length} active alert{activeAlerts.length !== 1 ? 's' : ''}
               </p>
-              <span className="text-slate-600">·</span>
-              <Link
-                to="/alerts"
-                className="text-sm font-medium text-cyan-400 hover:text-cyan-300"
-              >
-                View all →
-              </Link>
-            </div>
+            </Link>
           )}
         </section>
 
