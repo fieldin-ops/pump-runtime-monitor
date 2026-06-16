@@ -1,15 +1,20 @@
 import {
   AlertTriangle,
+  CheckCircle2,
   Droplets,
   Loader2,
   Radio,
   RefreshCw,
-  Thermometer,
   Wifi,
   WifiOff,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { AlertSummaryBadge } from '../components/AlertSummaryBadge'
+import {
+  filterUnreadAlerts,
+  useReadAlertIds,
+} from '../lib/alertStorage'
 import {
   FLESPI_TOKEN,
   FLESPI_TOKEN_PLACEHOLDER,
@@ -21,19 +26,14 @@ import {
   formatLastTransmission,
   type PumpSummary,
 } from '../lib/pumpSummary'
-
-interface Alert {
-  id: string
-  siteName: string
-  siteId: string
-  message: string
-  type: 'communication' | 'error'
-}
+import { buildFleetAlerts, fetchAllPumpAlerts } from '../lib/alerts'
 
 export function HomePage() {
   const [summaries, setSummaries] = useState<PumpSummary[]>([])
+  const [runtimeAlerts, setRuntimeAlerts] = useState<Awaited<ReturnType<typeof fetchAllPumpAlerts>>>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const readAlertIds = useReadAlertIds()
 
   const loadData = useCallback(async () => {
     if (FLESPI_TOKEN === FLESPI_TOKEN_PLACEHOLDER) {
@@ -48,11 +48,16 @@ export function HomePage() {
     setError(null)
 
     try {
-      const data = await fetchAllPumpSummaries(PUMP_SITES)
+      const [data, alerts] = await Promise.all([
+        fetchAllPumpSummaries(PUMP_SITES),
+        fetchAllPumpAlerts(PUMP_SITES),
+      ])
       setSummaries(data)
+      setRuntimeAlerts(alerts)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pump data')
       setSummaries([])
+      setRuntimeAlerts([])
     } finally {
       setLoading(false)
     }
@@ -64,33 +69,15 @@ export function HomePage() {
     return () => clearInterval(interval)
   }, [loadData])
 
-  const alerts = useMemo((): Alert[] => {
-    const items: Alert[] = []
-    for (const s of summaries) {
-      if (s.error) {
-        items.push({
-          id: `${s.pump.siteId}-error`,
-          siteName: s.pump.name,
-          siteId: s.pump.siteId,
-          message: s.error,
-          type: 'error',
-        })
-      } else if (!s.communicating) {
-        const message =
-          s.running === true
-            ? 'No transmission in the last 30 minutes'
-            : 'No transmission in the last 13 hours'
-        items.push({
-          id: `${s.pump.siteId}-comm`,
-          siteName: s.pump.name,
-          siteId: s.pump.siteId,
-          message,
-          type: 'communication',
-        })
-      }
-    }
-    return items
-  }, [summaries])
+  const alerts = useMemo(
+    () => buildFleetAlerts(summaries, runtimeAlerts),
+    [summaries, runtimeAlerts],
+  )
+
+  const activeAlerts = useMemo(
+    () => filterUnreadAlerts(alerts, readAlertIds),
+    [alerts, readAlertIds],
+  )
 
   const totalPumps = PUMP_SITES.length
   const runningCount = summaries.filter((s) => s.running === true).length
@@ -115,17 +102,23 @@ export function HomePage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={loadData}
-              disabled={loading}
-              className="flex h-9 items-center gap-1.5 self-start rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50 sm:self-auto"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`}
+            <div className="flex flex-wrap items-center gap-3">
+              <AlertSummaryBadge
+                count={activeAlerts.length}
+                to="/alerts"
               />
-              Refresh
-            </button>
+              <button
+                type="button"
+                onClick={loadData}
+                disabled={loading}
+                className="flex h-9 items-center gap-1.5 self-start rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50 sm:self-auto"
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`}
+                />
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -142,45 +135,31 @@ export function HomePage() {
         )}
 
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
-            Alerts
-          </h2>
           {loading && summaries.length === 0 ? (
-            <div className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-6 text-slate-500">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-3 text-slate-500">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span className="text-sm">Checking pump status…</span>
             </div>
-          ) : alerts.length === 0 ? (
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-4">
+          ) : activeAlerts.length === 0 ? (
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               <p className="text-sm text-emerald-400/90">
                 All pumps communicating — no active alerts
               </p>
             </div>
           ) : (
-            <ul className="space-y-2">
-              {alerts.map((alert) => (
-                <li
-                  key={alert.id}
-                  className="flex items-start gap-3 rounded-xl border border-red-500/25 bg-red-500/5 px-4 py-3"
-                >
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-red-300">
-                      {alert.siteName}
-                      {alert.type === 'communication' && ' — Communication issue'}
-                      {alert.type === 'error' && ' — Data error'}
-                    </p>
-                    <p className="mt-0.5 text-sm text-red-400/80">{alert.message}</p>
-                  </div>
-                  <Link
-                    to={`/pump/${alert.siteId}`}
-                    className="shrink-0 text-xs font-medium text-cyan-400 hover:text-cyan-300"
-                  >
-                    View →
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
+              <p className="text-sm text-red-300">
+                {activeAlerts.length} active alert{activeAlerts.length !== 1 ? 's' : ''}
+              </p>
+              <span className="text-slate-600">·</span>
+              <Link
+                to="/alerts"
+                className="text-sm font-medium text-cyan-400 hover:text-cyan-300"
+              >
+                View all →
+              </Link>
+            </div>
           )}
         </section>
 

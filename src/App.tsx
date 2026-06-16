@@ -8,13 +8,18 @@ import {
   Radio,
   RefreshCw,
 } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom'
+import { AlertSummaryBadge } from './components/AlertSummaryBadge'
 import { DayPicker } from './components/DayPicker'
 import { DayStats } from './components/DayStats'
 import { EventList } from './components/EventList'
 import { PumpMap } from './components/PumpMap'
 import { Timeline } from './components/Timeline'
+import {
+  filterUnreadAlerts,
+  useReadAlertIds,
+} from './lib/alertStorage'
 import {
   FIRST_DAY,
   FLESPI_TOKEN,
@@ -24,25 +29,41 @@ import {
 } from './lib/constants'
 import { fetchDeviceMessages, fetchLastTimestamp } from './lib/flespi'
 import type { FlespiMessage } from './lib/flespi'
+import { generateAlerts, type PumpAlert } from './lib/alerts'
 import {
   dayBounds,
   processTwoDayMessages,
   type ProcessedTwoDay,
 } from './lib/pumpLogic'
 
+function parseDateFromParam(dateParam: string | null): Date | null {
+  if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return null
+  return new Date(`${dateParam}T12:00:00`)
+}
+
 export default function App() {
   const { siteId } = useParams<{ siteId: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const pump = siteId ? getPumpSite(siteId) : undefined
 
   const [selectedDate, setSelectedDate] = useState(() => {
+    const fromUrl = parseDateFromParam(searchParams.get('date'))
+    if (fromUrl) return fromUrl
     const nowInTz = new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })
     return new Date(`${nowInTz}T12:00:00`)
   })
+  const [alerts, setAlerts] = useState<PumpAlert[]>([])
   const [processed, setProcessed] = useState<ProcessedTwoDay | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const allMessages = useRef<FlespiMessage[]>([])
   const lastCommTimestamp = useRef<number | null>(null)
+  const readAlertIds = useReadAlertIds()
+
+  const activeAlerts = useMemo(
+    () => filterUnreadAlerts(alerts, readAlertIds),
+    [alerts, readAlertIds],
+  )
 
   const processForDate = useCallback((date: Date, messages: FlespiMessage[]) => {
     const { start: dayStart } = dayBounds(date)
@@ -78,6 +99,7 @@ export default function App() {
       const lastTs = await fetchLastTimestamp(pump.flespiDeviceId)
       lastCommTimestamp.current = lastTs
       setProcessed(processForDate(selectedDate, messages))
+      setAlerts(generateAlerts(messages, pump.siteId))
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
@@ -99,6 +121,22 @@ export default function App() {
       setProcessed(processForDate(selectedDate, allMessages.current))
     }
   }, [selectedDate, processForDate])
+
+  useEffect(() => {
+    const fromUrl = parseDateFromParam(searchParams.get('date'))
+    if (fromUrl) {
+      setSelectedDate(fromUrl)
+    }
+  }, [searchParams])
+
+  const handleDateChange = useCallback(
+    (date: Date) => {
+      setSelectedDate(date)
+      const dateStr = date.toLocaleDateString('en-CA', { timeZone: TIMEZONE })
+      setSearchParams({ date: dateStr }, { replace: true })
+    },
+    [setSearchParams],
+  )
 
   if (!siteId || !pump) {
     return <Navigate to="/" replace />
@@ -136,9 +174,13 @@ export default function App() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <AlertSummaryBadge
+                count={activeAlerts.length}
+                to={`/pump/${pump.siteId}/alerts`}
+              />
               <DayPicker
                 selectedDate={selectedDate}
-                onChange={setSelectedDate}
+                onChange={handleDateChange}
               />
               <button
                 type="button"
@@ -200,9 +242,7 @@ export default function App() {
               <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
                 Daily Summary — {format(selectedDate, 'EEEE, MMM d, yyyy')}
               </h2>
-              <DayStats
-                stats={processed.stats}
-              />
+              <DayStats stats={processed.stats} />
             </section>
 
             <section className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-5">
