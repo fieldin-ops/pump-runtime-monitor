@@ -105,6 +105,7 @@ export function HomePage() {
             <div className="flex flex-wrap items-center gap-3">
               <AlertSummaryBadge
                 count={activeAlerts.length}
+                totalAlerts={alerts.length}
                 to="/alerts"
               />
               <button

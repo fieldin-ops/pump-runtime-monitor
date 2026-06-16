@@ -13,6 +13,7 @@ import { AlertsTable } from '../components/AlertsTable'
 import {
   filterUnreadAlerts,
   markAlertAsRead,
+  resetAllReadAlerts,
   useReadAlertIds,
 } from '../lib/alertStorage'
 import {
@@ -169,15 +170,26 @@ export function AlertsPage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={loadData}
-              disabled={loading}
-              className="flex h-9 items-center gap-1.5 self-start rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50 sm:self-auto"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {readAlertIds.size > 0 && (
+                <button
+                  type="button"
+                  onClick={resetAllReadAlerts}
+                  className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200"
+                >
+                  Reset all
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={loadData}
+                disabled={loading}
+                className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-700/60 bg-slate-800/50 px-3 text-sm text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200 disabled:opacity-50"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
       </header>

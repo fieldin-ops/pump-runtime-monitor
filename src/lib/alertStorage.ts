@@ -52,6 +52,11 @@ export function markAlertAsRead(id: string): void {
   notifyListeners()
 }
 
+export function resetAllReadAlerts(): void {
+  localStorage.removeItem(STORAGE_KEY)
+  notifyListeners()
+}
+
 export function isAlertRead(id: string): boolean {
   return cachedSnapshot.has(id)
 }

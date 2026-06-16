@@ -3,12 +3,25 @@ import { Link } from 'react-router-dom'
 
 interface AlertSummaryBadgeProps {
   count: number
+  totalAlerts?: number
   to: string
   label?: string
 }
 
-export function AlertSummaryBadge({ count, to, label }: AlertSummaryBadgeProps) {
-  if (count === 0) return null
+export function AlertSummaryBadge({ count, totalAlerts = 0, to, label }: AlertSummaryBadgeProps) {
+  if (count === 0 && totalAlerts === 0) return null
+
+  if (count === 0) {
+    return (
+      <Link
+        to={to}
+        className="inline-flex items-center gap-2 rounded-lg border border-slate-600/30 bg-slate-700/20 px-3 py-1.5 text-sm font-medium text-slate-400 transition-colors hover:border-slate-500/50 hover:bg-slate-700/30"
+      >
+        <Bell className="h-3.5 w-3.5 shrink-0" />
+        <span>View alerts</span>
+      </Link>
+    )
+  }
 
   const text =
     label ??
